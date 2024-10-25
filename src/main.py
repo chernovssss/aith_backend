@@ -1,6 +1,6 @@
 from functools import reduce
 
-from MyAPI.MyAPI import MyApp, Registerer, HttpResponse, JSONResponse
+from src.MyAPI.MyAPI import MyApp, Registerer, HttpResponse, JSONResponse
 
 regesterer = Registerer()
 app = MyApp(regesterer)
