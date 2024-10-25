@@ -24,9 +24,7 @@ jobs:
         uses: abatilo/actions-poetry@v2
       - name: Install dependencies with poetry
         run: poetry install
-      - name: Run tests
-        run: poetry run pytest -vv --strict --showlocals
       - name: Run uvicorn
         run: poetry run uvicorn src.main:app
       - name: Run tests
-        run: poetry run pytest -vv --strict --showlocals --exitfirst
+        run: poetry run pytest -vv --strict --showlocals
