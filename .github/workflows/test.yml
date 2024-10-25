@@ -25,6 +25,6 @@ jobs:
       - name: Install dependencies with poetry
         run: poetry install
       - name: Run uvicorn
-        run: poetry run uvicorn src.main:app
+        run: poetry run uvicorn src.main:app --factory &
       - name: Run tests
         run: poetry run pytest -vv --strict --showlocals
