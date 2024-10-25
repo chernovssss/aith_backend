@@ -35,4 +35,4 @@ async def mean(array: list[float | int]) -> HttpResponse:
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="localhost")
+    uvicorn.run(app, host="localhost", port=8000)
