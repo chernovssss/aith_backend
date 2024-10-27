@@ -14,50 +14,50 @@ item_router = APIRouter(tags=["Item"], prefix="/item")
 carts = []
 carts_items = []
 items = []
-cart_id = 0
-item_id = 0
+_cart_id = 0
+_item_id = 0
 
 
-def get_by_id(id: int, data: list):
+def get_by_id(item_id: int, data: list):
     try:
-        return next(i for i in data if i.id == id)
+        return next(i for i in data if i.id == item_id)
     except StopIteration:
         return None
 
 
-def get_index_by_id(id: int, data: list):
+def get_index_by_id(item_id: int, data: list):
     try:
-        return next(i for i, item in enumerate(data) if item.id == id)
+        return next(i for i, item in enumerate(data) if item.id == item_id)
     except StopIteration:
         return None
 
 
-@cart_router.post("/", status_code=HTTPStatus.CREATED)
+@cart_router.post("/", status_code=HTTPStatus.CREATED, response_model=Cart)
 async def create_cart(response: Response) -> Cart:
-    global cart_id
-    new_cart = Cart(id=cart_id, items=[], price=0)
+    global _cart_id
+    new_cart = Cart(id=_cart_id, items=[], price=0)
     carts.append(new_cart)
     response.headers["location"] = f"/cart/{new_cart.id}"
-    cart_id += 1
+    _cart_id += 1
     return new_cart
 
 
-@cart_router.get("/{id}", response_model=Cart)
-async def get_cart(id: int):
-    cart = get_by_id(id, carts)
+@cart_router.get("/{cart_id}", response_model=Cart)
+async def get_cart(cart_id: int):
+    cart = get_by_id(cart_id, carts)
     if not cart:
         return Response(status_code=HTTPStatus.NOT_FOUND)
     return cart
 
 
-@cart_router.get("/")
+@cart_router.get("/", response_model=list[Cart])
 async def get_carts(
     offset: Annotated[NonNegativeInt, Query()] = 0,
     limit: Annotated[PositiveInt, Query()] = 10,
-    min_price: Annotated[float | None, Query(ge=0.0)] = 0,
-    max_price: Annotated[float | None, Query(ge=0.0)] = 1e10,
-    min_quantity: Annotated[NonNegativeInt | None, Query()] = 0,
-    max_quantity: Annotated[NonNegativeInt | None, Query()] = 1e10,
+    min_price: Annotated[float, Query(ge=0.0)] = 0,
+    max_price: Annotated[float, Query(ge=0.0)] = 1e10,
+    min_quantity: Annotated[NonNegativeInt, Query()] = 0,
+    max_quantity: Annotated[NonNegativeInt, Query()] = 1e10,
 ):
     filtered_carts = []
     i = 0
@@ -86,42 +86,42 @@ async def add_item_to_cart(cart_id: int, item_id: int):
     if not existing_item:
         return Response(status_code=HTTPStatus.NOT_FOUND)
 
-    item = get_by_id(item_id, cart.items)
-    if item:
-        item.quantity += 1
+    item_in_cart = get_by_id(item_id, cart.items)
+    if item_in_cart:
+        item_in_cart.quantity += 1
         cart.price += existing_item.price
     else:
-        cart.items.append(CartItem(id=item_id, name=existing_item.name, quantity=1, available=True))
+        cart.items.append(
+            CartItem(id=item_id, name=existing_item.name, quantity=1, available=True)
+        )
         cart.price += existing_item.price
-    return Response(status_code=HTTPStatus.OK)
 
 
-@item_router.post("/")
+@item_router.post("/", response_model=Item, status_code=HTTPStatus.CREATED)
 async def create_item(item: ItemRequest, response: Response):
-    global item_id
-    new_item = Item(id=item_id, name=item.name, price=item.price, deleted=False)
+    global _item_id
+    new_item = Item(id=_item_id, name=item.name, price=item.price, deleted=False)
     items.append(new_item)
     response.headers["location"] = f"items/{new_item.id}"
-    item_id += 1
-    response.status_code = HTTPStatus.CREATED
+    _item_id += 1
     return new_item
 
 
-@item_router.get("/{id}", response_model=Item)
-async def get_item(id: int):
-    item = get_by_id(id, items)
+@item_router.get("/{item_id}", response_model=Item)
+async def get_item(item_id: int):
+    item = get_by_id(item_id, items)
     if not item or item.deleted:
         return Response(status_code=HTTPStatus.NOT_FOUND)
     return item
 
 
-@item_router.get("/")
+@item_router.get("/", response_model=list[Item])
 async def get_items(
     offset: Annotated[NonNegativeInt, Query()] = 0,
     limit: Annotated[PositiveInt, Query()] = 10,
-    min_price: Annotated[float | None, Query(ge=0.0)] = 0,
-    max_price: Annotated[float | None, Query(ge=0.0)] = 1e10,
-    show_deleted: Annotated[bool | None, Query()] = True,
+    min_price: Annotated[float, Query(ge=0.0)] = 0,
+    max_price: Annotated[float, Query(ge=0.0)] = 1e10,
+    show_deleted: Annotated[bool, Query()] = True,
 ):
     filtered_items = []
     i = 0
@@ -138,21 +138,21 @@ async def get_items(
     return filtered_items
 
 
-@item_router.put("/{id}")
-async def update_item(id: int, item: ItemRequest):
-    found_item = get_by_id(id, items)
+@item_router.put("/{item_id}", response_model=Item)
+async def update_item(item_id: int, item: ItemRequest):
+    found_item = get_by_id(item_id, items)
     if not item:
         return Response(status_code=HTTPStatus.NO_CONTENT)
-    index = get_index_by_id(id, items)
+    index = get_index_by_id(item_id, items)
     items[index] = Item(
-        id=id, name=item.name, price=item.price, deleted=found_item.deleted
+        id=item_id, name=item.name, price=item.price, deleted=found_item.deleted
     )
     return items[index]
 
 
-@item_router.patch("/{id}")
-async def update_item(id: int, item: PatchItemRequest):
-    patched_item = get_by_id(id, items)
+@item_router.patch("/{item_id}", response_model=Item)
+async def update_item(item_id: int, item: PatchItemRequest):
+    patched_item = get_by_id(item_id, items)
     if not patched_item or patched_item.deleted:
         return Response(status_code=HTTPStatus.NOT_MODIFIED)
     if patched_item.name == item.name and patched_item.price == item.price:
@@ -162,13 +162,12 @@ async def update_item(id: int, item: PatchItemRequest):
     return patched_item
 
 
-@item_router.delete("/{id}", status_code=HTTPStatus.NO_CONTENT)
-async def delete_item(id: int):
-    item = get_by_id(id, items)
+@item_router.delete("/{item_id}", status_code=HTTPStatus.OK)
+async def delete_item(item_id: int):
+    item = get_by_id(item_id, items)
     if not item:
         return Response(status_code=HTTPStatus.NOT_FOUND)
     item.deleted = True
-    return Response(status_code=HTTPStatus.OK)
 
 
 app.include_router(item_router)

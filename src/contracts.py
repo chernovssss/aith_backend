@@ -7,8 +7,8 @@ class ItemRequest(BaseModel):
     name: str
     price: float
 
+
 class PatchItemRequest(BaseModel):
     name: str = None
     price: Annotated[float, Field(gt=0.0)] = None
-
-    model_config = ConfigDict(extra='forbid')
+    model_config = ConfigDict(extra="forbid")

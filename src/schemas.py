@@ -21,4 +21,3 @@ class Cart(BaseModel):
     id: int
     items: list[CartItem] = field(default_factory=list)
     price: float
-
