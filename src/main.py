@@ -2,7 +2,9 @@ from http import HTTPStatus
 from typing import Annotated
 
 from fastapi import FastAPI, APIRouter, Response, Query
+from prometheus_fastapi_instrumentator import Instrumentator
 from pydantic import NonNegativeInt, PositiveInt
+from starlette.middleware.cors import CORSMiddleware
 
 from src.contracts import ItemRequest, PatchItemRequest
 from src.schemas import Cart, Item, CartItem
@@ -173,3 +175,5 @@ async def delete_item(item_id: int):
 app.include_router(item_router)
 
 app.include_router(cart_router)
+
+Instrumentator().instrument(app).expose(app)
