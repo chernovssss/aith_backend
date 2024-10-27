@@ -60,16 +60,16 @@ async def get_carts(
     max_quantity: Annotated[NonNegativeInt, Query()] = 1e10,
 ):
     filtered_carts = []
-    i = 0
+    i = -1
     for cart in carts:
         i += 1
-        if cart.price >= min_price:
+        if cart.price < min_price:
             continue
-        if cart.price <= max_price:
+        if cart.price > max_price:
             continue
-        if len(cart.items) >= min_quantity:
+        if len(cart.items) < min_quantity:
             continue
-        if len(cart.items) <= max_quantity:
+        if len(cart.items) > max_quantity:
             continue
         if offset <= i < offset + limit:
             filtered_carts.append(cart)
@@ -124,14 +124,15 @@ async def get_items(
     show_deleted: Annotated[bool, Query()] = True,
 ):
     filtered_items = []
-    i = 0
+    i = -1
     for item in items:
+        print(item)
         i += 1
-        if item.price >= min_price:
+        if item.price <= min_price:
             continue
-        if item.price <= max_price:
+        if item.price >= max_price:
             continue
-        if show_deleted != item.deleted:
+        if show_deleted == item.deleted:
             continue
         if offset <= i < offset + limit:
             filtered_items.append(item)
