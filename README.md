@@ -1,17 +1,16 @@
 ## Python Backend Homeworks
 
-PR links:
+Я пересоздал репо, но забыл поменять ссылку.
 
-1. [Основы сети и Python Backend](https://github.com/chernovssss/aith_python_backend/pull/1)  
-   Перемудрил, заняло больше времни чем ожидал.
-   C приёмкой body явно что-то не так, но все текущие тесты проходит
+Домашки с соответствующих ветках:
 
-```commandline
-pip install -r requirements.txt
-```
+1/ [branch: homework1 (Математическое API)](https://github.com/chernovssss/aith_backend/tree/homework1)  
+[CI: tests](https://github.com/chernovssss/aith_backend/actions/runs/11509818572/job/32040604063)  
+Ничего не поменялось, кроме того, что я убрал лишние импорты и прикрутил poetry с CI.
 
-```commandline
-uvicorn src.main:app --factory
-```
+2/ [branch: homework2 (REST API)](https://github.com/chernovssss/aith_backend/tree/homework2)   
+[CI: tests](https://github.com/chernovssss/aith_backend/actions/runs/11536407437/job/32112614770)
 
-2. 
+3/ [branch: homework3 (Prometheus, Grafana, Docker)](https://github.com/chernovssss/aith_backend/tree/homework3)  
+Накрутил повер предыдущей задачки необходимые технологии.
+CI делать не стал, картинки - [тут](https://github.com/chernovssss/aith_backend/tree/homework3/assets)
